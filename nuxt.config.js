@@ -1,7 +1,13 @@
+require('dotenv').config()
 const pkg = require('./package')
 
 module.exports = {
   mode: 'spa',
+
+  server: {
+    port: process.env.SERVER_PORT,
+    host: process.env.SERVER_HOST,
+  },
 
   /*
   ** Headers of the page
@@ -11,12 +17,12 @@ module.exports = {
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: pkg.description }
+      { hid: 'description', name: 'description', content: pkg.description },
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' }
-    ]
+      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' },
+    ],
   },
 
   /*
@@ -28,14 +34,15 @@ module.exports = {
   ** Global CSS
   */
   css: [
-    '~/assets/style/app.styl'
+    'vuetify/dist/vuetify.min.css',
   ],
 
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '@/plugins/vuetify'
+    '@/plugins/vuetify',
+    '~/plugins/socket.io.js',
   ],
 
   /*
@@ -43,14 +50,39 @@ module.exports = {
   */
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
-    '@nuxtjs/axios'
+    '@nuxtjs/dotenv',
+    '@nuxtjs/axios',
+    '@nuxtjs/auth',
   ],
+
   /*
   ** Axios module configuration
   */
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
   },
+
+  auth: {
+    redirect: {
+      login: '/',
+      logout: '/',
+      callback: '/callback',
+      home: '/controller',
+    },
+    strategies: {
+      discord: {
+        _scheme: 'oauth2',
+        authorization_endpoint: 'https://discordapp.com/oauth2/authorize',
+        userinfo_endpoint: 'https://discordapp.com/api/v6/users/@me',
+        scope: ['identify'],
+        response_type: 'token',
+        token_type: 'Bearer',
+        redirect_uri: process.env.CALLBACK_URL,
+        client_id: process.env.CLIENT_ID,
+      },
+    },
+  },
+
 
   /*
   ** Build configuration
@@ -66,9 +98,9 @@ module.exports = {
           enforce: 'pre',
           test: /\.(js|vue)$/,
           loader: 'eslint-loader',
-          exclude: /(node_modules)/
+          exclude: /(node_modules)/,
         })
       }
-    }
-  }
+    },
+  },
 }

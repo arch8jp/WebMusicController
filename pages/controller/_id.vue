@@ -5,7 +5,12 @@
 
         <v-layout row wrap>
 
-          <!-- 現在キュー表示 -->
+          <v-flex xs12>
+            <v-alert :value="error" color="error" icon="warning" transition="scale-transition">
+              <b>既知の不具合</b><br>
+              1回しか押していないのに2曲スキップされる
+            </v-alert>
+          </v-flex>
 
           <v-flex xs12>
             <v-card>
@@ -18,7 +23,7 @@
                 <v-list>
                   <v-list-tile v-for="(item, key) in queue" :key="key" avatar>
                     <v-list-tile-avatar>
-                      <img :src="item.img">
+                      <img :src="item.thumbnail">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title>{{ item.title }}</v-list-tile-title>
@@ -40,7 +45,7 @@
               <v-divider />
 
               <v-container>
-                <v-slider :disabled="queue.length == 0" v-model="volume" prepend-icon="volume_up" thumb-label @min="0" @max="100" @input="vchange()" />
+                <v-slider :disabled="queue.length == 0" v-model="volume" prepend-icon="volume_up" thumb-label @min="0" @max="100" />
               </v-container>
 
               <v-card-actions>
@@ -111,13 +116,13 @@
               <v-slide-y-transition>
                 <v-card-text v-show="search_panel">
                   <v-list v-if="search_result.length > 0" two-line>
-                    <v-list-tile v-for="item in search_result" :key="item.id.videoId" avatar>
+                    <v-list-tile v-for="item in search_result" :key="item.id" avatar>
                       <v-list-tile-avatar>
-                        <img :src="item.snippet.thumbnails.medium.url">
+                        <img :src="item.thumbnail">
                       </v-list-tile-avatar>
                       <v-list-tile-content>
-                        <v-list-tile-title>{{ item.snippet.title }}</v-list-tile-title>
-                        <v-list-tile-sub-title>by {{ item.snippet.channelTitle }}</v-list-tile-sub-title>
+                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                        <v-list-tile-sub-title v-if="item.channel">by {{ item.channel }}</v-list-tile-sub-title>
                       </v-list-tile-content>
                       <v-list-tile-action>
                         <v-btn :disabled="add_block" icon ripple @click="add(item)">
@@ -155,12 +160,13 @@ export default {
       volume: 0,
       volume_panel: false,
       search_query: '',
-      search_result: {},
+      search_result: [],
       search_panel: false,
       queue: [],
       searching: false,
       add_block: false,
       skip_block: false,
+      error: null,
     }
   },
   computed: {
@@ -170,6 +176,15 @@ export default {
       'connect_guildid',
       'connect_channel',
     ]),
+  },
+  watch: {
+    volume(volume) {
+      const data = {
+        volume,
+        id: this.connect_guildid,
+      }
+      this.$socket.emit('volume', data)
+    },
   },
   mounted: function() {
     this.$socket.emit('init', this.$route.params.id)
@@ -185,20 +200,31 @@ export default {
       this.connect_ready(data)
     },
     result(data) {
-      console.log(data)
-      this.search_result = data.items
+      this.search_result = data
       this.searching = false
       this.search_panel = true
     },
     list(data) {
-      console.log(data)
       this.queue = data
     },
     volume(volume) {
       this.volume = volume
     },
     err(code) {
-      console.log(code)
+      const messages = {
+        UNAUTHORIZED: 'ログインしてください',
+        INVAILD_CHANNEL: 'チャンネルが正しくありません(URLを確認してください)',
+        INVAILD_CHANNEL_TYPE: 'ボイスチャンネルではありません(URLを確認してください)',
+        CHANNEL_IS_FULL: 'ボイスチャンネルが満員です',
+        MISSING_PERMISSION: 'ボイスチャンネルに参加できません(権限を確認してください)',
+        USER_NOT_JOINED: 'ボイスチャンネルに参加してください',
+        ALREADY_JOINED: 'すでに参加しています',
+        UNTREATED_CHANNEL: 'チャンネルが読み込まれていません',
+        INVAILD_TYPE: 'タイプが正しくありません',
+        UNKNOWN_ERROR: '不明なエラー',
+      }
+      this.error = messages[code] || messages.UNKNOWN_ERROR
+      setTimeout(() => this.error = null, 5000)
     },
   },
   methods: {
@@ -208,39 +234,28 @@ export default {
     ]),
     search() {
       this.searching = true
-      this.$socket.emit('q', this.search_query)
+      this.$socket.emit('q', {
+        type: 'api',
+        q: this.search_query,
+      })
     },
     add(item) {
-      const data = {
-        id: item.id.videoId,
-        img: item.snippet.thumbnails.medium.url,
-        title: item.snippet.title,
+      this.$socket.emit('add', {
+        ...item,
         guild: this.connect_guildid,
-      }
-      this.$socket.emit('add', data)
+      })
       this.add_block = true
-      var self = this
-      setTimeout(function() {
-        self.add_block = false
-      }, 3000)
+      setTimeout(() => this.add_block = false, 3000)
     },
     del(item, key) {
-      const data = {
+      this.$socket.emit('remove', {
         index: key,
         id: this.connect_guildid,
-      }
-      this.$socket.emit('remove', data)
-    },
-    vchange() {
-      const data = {
-        volume: this.volume,
-        id: this.connect_guildid,
-      }
-      this.$socket.emit('volume', data)
+      })
     },
     clearSearch() {
       this.search_panel = false
-      this.search_result = {}
+      this.search_result = []
     },
     music_skip() {
       this.$socket.emit('skip', this.connect_guildid)

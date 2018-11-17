@@ -7,8 +7,7 @@
 
           <v-flex xs12>
             <v-alert :value="error" color="error" icon="warning" transition="scale-transition">
-              <b>既知の不具合</b><br>
-              1回しか押していないのに2曲スキップされる
+              {{ messages[error] }}
             </v-alert>
           </v-flex>
 
@@ -141,6 +140,9 @@
 
     <div v-else>
       <v-container>
+        <v-alert :value="error" color="error" icon="warning" transition="scale-transition">
+          {{ messages[error] }}
+        </v-alert>
         <v-alert color="warning" icon="priority_high" value="true" transition="scale-transition">
           チャンネルに接続されていません
         </v-alert>
@@ -167,6 +169,18 @@ export default {
       add_block: false,
       skip_block: false,
       error: null,
+      messages: {
+        UNAUTHORIZED: 'ログインしてください',
+        INVAILD_CHANNEL: 'チャンネルが正しくありません(URLを確認してください)',
+        INVAILD_CHANNEL_TYPE: 'ボイスチャンネルではありません(URLを確認してください)',
+        CHANNEL_IS_FULL: 'ボイスチャンネルが満員です',
+        MISSING_PERMISSION: 'ボイスチャンネルに参加できません(権限を確認してください)',
+        USER_NOT_JOINED: 'ボイスチャンネルに参加してください',
+        ALREADY_JOINED: 'すでに参加しています',
+        UNTREATED_CHANNEL: 'チャンネルが読み込まれていません',
+        INVAILD_TYPE: 'タイプが正しくありません',
+        UNKNOWN_ERROR: '不明なエラー',
+      },
     }
   },
   computed: {
@@ -187,7 +201,10 @@ export default {
     },
   },
   mounted: function() {
-    this.$socket.emit('init', this.$route.params.id)
+    this.$socket.emit('init', {
+      user: this.$auth.user.id,
+      channel: this.$route.params.id,
+    })
   },
   sockets: {
     connect() {
@@ -211,19 +228,7 @@ export default {
       this.volume = volume
     },
     err(code) {
-      const messages = {
-        UNAUTHORIZED: 'ログインしてください',
-        INVAILD_CHANNEL: 'チャンネルが正しくありません(URLを確認してください)',
-        INVAILD_CHANNEL_TYPE: 'ボイスチャンネルではありません(URLを確認してください)',
-        CHANNEL_IS_FULL: 'ボイスチャンネルが満員です',
-        MISSING_PERMISSION: 'ボイスチャンネルに参加できません(権限を確認してください)',
-        USER_NOT_JOINED: 'ボイスチャンネルに参加してください',
-        ALREADY_JOINED: 'すでに参加しています',
-        UNTREATED_CHANNEL: 'チャンネルが読み込まれていません',
-        INVAILD_TYPE: 'タイプが正しくありません',
-        UNKNOWN_ERROR: '不明なエラー',
-      }
-      this.error = messages[code] || messages.UNKNOWN_ERROR
+      this.error = code || 'UNKNOWN_ERROR'
       setTimeout(() => this.error = null, 5000)
     },
   },

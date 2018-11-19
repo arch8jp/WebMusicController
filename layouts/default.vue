@@ -5,7 +5,7 @@
       <v-content>
         <nuxt />
       </v-content>
-      <!-- <page-header /> -->
+      <page-footer />
     </v-app>
   </div>
 </template>
@@ -14,12 +14,12 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 
 import pageHeader from '~/components/Header.vue'
-// import pageFooter from '~/components/Footer.vue'
+import pageFooter from '~/components/Footer.vue'
 
 export default {
   components: {
     pageHeader,
-    // pageFooter,
+    pageFooter,
   },
 }
 </script>

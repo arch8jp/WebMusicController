@@ -11,7 +11,7 @@
             </v-alert>
           </v-flex>
 
-          <v-flex xs12>
+          <v-flex xs12 md6>
             <v-card>
 
               <v-card-title primary-title>
@@ -72,7 +72,7 @@
             </v-card>
           </v-flex>
 
-          <v-flex xs12>
+          <v-flex xs12 md6>
             <v-card>
 
               <v-card-title primary-title>

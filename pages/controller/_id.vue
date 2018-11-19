@@ -44,7 +44,7 @@
               <v-divider />
 
               <v-container>
-                <v-slider :disabled="queue.length == 0" v-model="volume" prepend-icon="volume_up" thumb-label @min="0" @max="100" />
+                <v-slider :disabled="!playing" v-model="volume" prepend-icon="volume_up" thumb-label @input="vchange" />
               </v-container>
 
               <v-card-actions>
@@ -190,15 +190,6 @@ export default {
       'connect_channel',
     ]),
   },
-  watch: {
-    volume(volume) {
-      const data = {
-        volume,
-        id: this.connect_guildid,
-      }
-      this.$socket.emit('volume', data)
-    },
-  },
   mounted() {
     this.$socket.emit('init', {
       user: this.$auth.user.id,
@@ -268,6 +259,13 @@ export default {
       setTimeout(function() {
         self.skip_block = false
       }, 3000)
+    },
+    vchange() {
+      const data = {
+        volume: this.volume,
+        id: this.connect_guildid,
+      }
+      this.$socket.emit('volume', data)
     },
   },
   middleware: ['auth'],

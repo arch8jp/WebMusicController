@@ -8,6 +8,7 @@ module.exports = {
     parser: 'babel-eslint',
   },
   extends: [
+    'eslint:recommended',
     'plugin:vue/recommended',
   ],
   // required to lint *.vue files
@@ -30,5 +31,6 @@ module.exports = {
     'prefer-const': 2,
     'comma-spacing': 2,
     'comma-style': 2,
+    'object-shorthand': 2,
   },
 }

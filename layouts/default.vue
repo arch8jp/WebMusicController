@@ -11,8 +11,6 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
-
 import pageHeader from '~/components/Header.vue'
 import pageFooter from '~/components/Footer.vue'
 

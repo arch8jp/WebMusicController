@@ -153,8 +153,7 @@
 </template>
 
 <script>
-
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   data() {
@@ -200,7 +199,7 @@ export default {
       this.$socket.emit('volume', data)
     },
   },
-  mounted: function() {
+  mounted() {
     this.$socket.emit('init', {
       user: this.$auth.user.id,
       channel: this.$route.params.id,

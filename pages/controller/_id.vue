@@ -177,7 +177,6 @@ export default {
         USER_NOT_JOINED: 'ボイスチャンネルに参加してください',
         ALREADY_JOINED: 'すでに参加しています',
         UNTREATED_CHANNEL: 'チャンネルが読み込まれていません',
-        INVAILD_TYPE: 'タイプが正しくありません',
         UNKNOWN_ERROR: '不明なエラー',
       },
     }
@@ -229,10 +228,7 @@ export default {
     ]),
     search() {
       this.searching = true
-      this.$socket.emit('q', {
-        type: 'api',
-        q: this.search_query,
-      })
+      this.$socket.emit('q', this.search_query)
     },
     add(item) {
       this.$socket.emit('add', {

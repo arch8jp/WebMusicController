@@ -18,7 +18,7 @@
                 <h3 class="headline mb-0"><v-icon large>playlist_play</v-icon> Now Playing</h3>
               </v-card-title>
 
-              <v-card-text v-if="queue.length > 0">
+              <v-card-text v-if="playing">
                 <v-list>
                   <v-list-tile v-for="(item, key) in queue" :key="key" avatar>
                     <v-list-tile-avatar>
@@ -114,7 +114,7 @@
 
               <v-slide-y-transition>
                 <v-card-text v-show="search_panel">
-                  <v-list v-if="search_result.length > 0" two-line>
+                  <v-list v-if="search_result.length" two-line>
                     <v-list-tile v-for="item in search_result" :key="item.id" avatar>
                       <v-list-tile-avatar>
                         <img :src="item.thumbnail">
@@ -159,7 +159,6 @@ export default {
   data() {
     return {
       volume: 0,
-      volume_panel: false,
       search_query: '',
       search_result: [],
       search_panel: false,
@@ -182,6 +181,9 @@ export default {
     }
   },
   computed: {
+    playing() {
+      return this.queue.length
+    },
     ...mapState([
       'isConnected',
       'connect_guild',
@@ -251,10 +253,7 @@ export default {
     music_skip() {
       this.$socket.emit('skip', this.connect_guildid)
       this.skip_block = true
-      var self = this
-      setTimeout(function() {
-        self.skip_block = false
-      }, 3000)
+      setTimeout(() => this.skip_block = false, 3000)
     },
     vchange() {
       const data = {

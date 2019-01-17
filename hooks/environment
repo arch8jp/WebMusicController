@@ -1,0 +1,8 @@
+# Discord
+CLIENT_ID=535098608983212032
+CALLBACK_URL=http://musicbot.arch8.jp/callback
+
+# Server
+SERVER_HOST=localhost
+SERVER_PORT=3102
+BOT_SERVER=home.yhay81.jp:18888

@@ -21,7 +21,11 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons',
+      },
     ],
   },
 
@@ -33,16 +37,14 @@ module.exports = {
   /*
    ** Global CSS
    */
-  css: [
-    'vuetify/dist/vuetify.min.css',
-  ],
+  css: ['vuetify/dist/vuetify.min.css'],
 
   /*
    ** Plugins to load before mounting the App
    */
   plugins: [
-    '@/plugins/vuetify',
-    '~/plugins/socket.io.js',
+    { src: '@/plugins/vuetify', ssr: false },
+    { src: '~/plugins/socket.io.js', ssr: false },
   ],
 
   /*
@@ -82,7 +84,6 @@ module.exports = {
       },
     },
   },
-
 
   /*
    ** Build configuration

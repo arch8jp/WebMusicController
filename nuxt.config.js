@@ -42,10 +42,7 @@ module.exports = {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [
-    { src: '@/plugins/vuetify', ssr: false },
-    { src: '~/plugins/socket.io.js', ssr: false },
-  ],
+  plugins: ['@/plugins/vuetify', { src: '~/plugins/socket.io.js', ssr: false }],
 
   /*
    ** Nuxt.js modules

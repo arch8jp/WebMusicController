@@ -4,5 +4,5 @@ CALLBACK_URL=http://musicbot.arch8.jp/callback
 
 # Server
 SERVER_HOST=localhost
-SERVER_PORT=3103
+SERVER_PORT=3102
 BOT_SERVER=home.yhay81.jp:18888

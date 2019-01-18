@@ -1,0 +1,25 @@
+const { parsed: env } = require('dotenv').load()
+const io = require('socket.io')(Number(env.SERVER_PORT))
+const socket = require('socket.io-client')(env.BOT_SERVER)
+
+io.sockets.on('connection', client => {
+  socket.on('err', data => client.emit('err', data))
+  socket.on('status', data => client.emit('status', data))
+  socket.on('volume', data => client.emit('volume', data))
+  socket.on('repeat', data => client.emit('repeat', data))
+  socket.on('list', data => client.emit('list', data))
+  socket.on('ready', data => client.emit('ready', data))
+  socket.on('result', data => client.emit('result', data))
+
+  client.on('status', data => socket.emit('status', data))
+  client.on('init', data => socket.emit('init', data))
+  client.on('q', q => socket.emit('q', q))
+  client.on('add', data => socket.emit('add', data))
+  client.on('remove', data => socket.emit('remove', data))
+  client.on('volume', data => socket.emit('volume', data))
+  client.on('repeat', data => socket.emit('repeat', data))
+  client.on('skip', id => socket.emit('skip', id))
+})
+
+process.on('unhandledRejection', err => console.log(err))
+process.on('uncaughtException', err => console.log(err))

@@ -47,18 +47,28 @@ async function start() {
       }
     })
 
-    client.on('status', data => socket.emit('status', data))
-    client.on('init', data => socket.emit('init', data))
+    client.on('status', data =>
+      socket.emit('status', { socketid: client.id, data })
+    )
+    client.on('init', data =>
+      socket.emit('init', { socketid: client.id, data })
+    )
     client.on('q', q =>
       search(q)
         .then(data => client.emit('result', data))
         .catch(error => client.emit('err', error))
     )
-    client.on('add', data => socket.emit('add', data))
-    client.on('remove', data => socket.emit('remove', data))
-    client.on('volume', data => socket.emit('volume', data))
-    client.on('repeat', data => socket.emit('repeat', data))
-    client.on('skip', id => socket.emit('skip', id))
+    client.on('add', data => socket.emit('add', { socketid: client.id, data }))
+    client.on('remove', data =>
+      socket.emit('remove', { socketid: client.id, data })
+    )
+    client.on('volume', data =>
+      socket.emit('volume', { socketid: client.id, data })
+    )
+    client.on('repeat', data =>
+      socket.emit('repeat', { socketid: client.id, data })
+    )
+    client.on('skip', id => socket.emit('skip', { socketid: client.id, id }))
   })
 }
 

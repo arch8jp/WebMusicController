@@ -1,6 +1,6 @@
 const { parsed: env } = require('dotenv').load()
 const express = require('express')
-const socket = require('socket.io-client')(env.BOT_SERVER)
+const client = require('socket.io-client')(env.BOT_SERVER)
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const app = express()
@@ -35,11 +35,11 @@ async function start() {
     badge: true,
   })
   const io = require('socket.io').listen(http)
-  io.on('connection', client => {
-    socket.on('socketid', ({ socketid, emit, data }) => {
-      io.sockets.socket(socketid).emit(emit, data)
+  io.on('connection', socket => {
+    client.on('socketid', ({ socketid, emit, data }) => {
+      io.to(socketid).emit(emit, data)
     })
-    socket.on('room', ({ room, emit, data, selfExclude }) => {
+    client.on('room', ({ room, emit, data, selfExclude }) => {
       if (selfExclude) {
         socket.broadcast.to(room).emit(emit, data)
       } else {
@@ -47,28 +47,28 @@ async function start() {
       }
     })
 
-    client.on('status', data =>
-      socket.emit('status', { socketid: client.id, data })
+    socket.on('status', data =>
+      client.emit('status', { socketid: socket.id, data })
     )
-    client.on('init', data =>
-      socket.emit('init', { socketid: client.id, data })
+    socket.on('init', data =>
+      client.emit('init', { socketid: socket.id, data })
     )
-    client.on('q', q =>
+    socket.on('q', q =>
       search(q)
-        .then(data => client.emit('result', data))
-        .catch(error => client.emit('err', error))
+        .then(data => socket.emit('result', data))
+        .catch(error => socket.emit('err', error))
     )
-    client.on('add', data => socket.emit('add', { socketid: client.id, data }))
-    client.on('remove', data =>
-      socket.emit('remove', { socketid: client.id, data })
+    socket.on('add', data => client.emit('add', { socketid: socket.id, data }))
+    socket.on('remove', data =>
+      client.emit('remove', { socketid: socket.id, data })
     )
-    client.on('volume', data =>
-      socket.emit('volume', { socketid: client.id, data })
+    socket.on('volume', data =>
+      client.emit('volume', { socketid: socket.id, data })
     )
-    client.on('repeat', data =>
-      socket.emit('repeat', { socketid: client.id, data })
+    socket.on('repeat', data =>
+      client.emit('repeat', { socketid: socket.id, data })
     )
-    client.on('skip', id => socket.emit('skip', { socketid: client.id, id }))
+    socket.on('skip', id => client.emit('skip', { socketid: socket.id, id }))
   })
 }
 

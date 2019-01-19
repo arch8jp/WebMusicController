@@ -68,7 +68,9 @@ async function start() {
     socket.on('repeat', data =>
       client.emit('repeat', { socketid: socket.id, data })
     )
-    socket.on('skip', id => client.emit('skip', { socketid: socket.id, id }))
+    socket.on('skip', data =>
+      client.emit('skip', { socketid: socket.id, data })
+    )
   })
 }
 

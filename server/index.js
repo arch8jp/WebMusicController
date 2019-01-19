@@ -7,6 +7,8 @@ const app = express()
 const host = process.env.SERVER_HOST || '127.0.0.1'
 const port = process.env.SERVER_PORT || 3000
 
+const search = require('./search')
+
 app.set('port', port)
 
 // Import and Set Nuxt.js options
@@ -34,17 +36,24 @@ async function start() {
   })
   const io = require('socket.io').listen(http)
   io.on('connection', client => {
-    socket.on('err', data => client.emit('err', data))
-    socket.on('status', data => client.emit('status', data))
-    socket.on('volume', data => client.emit('volume', data))
-    socket.on('repeat', data => client.emit('repeat', data))
-    socket.on('list', data => client.emit('list', data))
-    socket.on('ready', data => client.emit('ready', data))
-    socket.on('result', data => client.emit('result', data))
+    socket.on('socketid', ({ socketid, emit, data }) => {
+      io.sockets.socket(socketid).emit(emit, data)
+    })
+    socket.on('room', ({ room, emit, data, selfExclude }) => {
+      if (selfExclude) {
+        socket.broadcast.to(room).emit(emit, data)
+      } else {
+        socket.to(room).emit(emit, data)
+      }
+    })
 
     client.on('status', data => socket.emit('status', data))
     client.on('init', data => socket.emit('init', data))
-    client.on('q', q => socket.emit('q', q))
+    client.on('q', q =>
+      search(q)
+        .then(data => client.emit('result', data))
+        .catch(error => client.emit('err', error))
+    )
     client.on('add', data => socket.emit('add', data))
     client.on('remove', data => socket.emit('remove', data))
     client.on('volume', data => socket.emit('volume', data))
